@@ -17,10 +17,23 @@
 }
 
 .line {
-  stroke: black;
-  position:absolute; 
-   top: 100px;
+  stroke: rgb(0, 0, 0);
+  position: absolute;
+  top: 100px;
   left: -89px;
   /* top: 0px;
   left: -89px; */
+}
+
+.objs {
+  stroke: rgb(255, 0, 0);
+  position: absolute;
+  top: 100px;
+  left: -89px;
+}
+.inputs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column-reverse;
 }

@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import Line from './line';
+import Objs from './objs';
 
-function computeData(probability: number, obj: number, objLength: number, areaPerim:number) {
+function computeData(
+  lines: number,
+  obj: number,
+  objLength: number,
+  areaPerim: number
+) {
   let x1Arr: number[] = [];
   let y1Arr: number[] = [];
   let x2Arr: number[] = [];
@@ -16,11 +22,8 @@ function computeData(probability: number, obj: number, objLength: number, areaPe
 
   let linesCount: number[] = [];
   let objCount: number[] = [];
-
-  // let lines = 1 - (1 - Math.pow(objLength / areaPerim, probability));
-  let lines = (Math.log(1-probability))/(Math.log(1-(objLength / areaPerim)))
-  lines = +lines
-  console.log(lines)
+  objLength = objLength / 100;
+  let probability = (1 - Math.pow(1 - objLength / areaPerim, lines))*50;
 
   for (let i = 0; i < lines; i++) {
     linesCount.push(1);
@@ -29,10 +32,11 @@ function computeData(probability: number, obj: number, objLength: number, areaPe
     objCount.push(1);
   }
 
-  // const generateArray = (length, max) => (
-  //   [...new Array(length)]
-  //     .map(() => Math.round(Math.random() * max))
-  // );
+  const generateArray = (arr: number[]) => {
+    arr.splice(Math.round(Math.random() * (3 - 0) + 0), 1);
+    arr.splice(Math.round(Math.random() * (2 - 0) + 0), 1);
+    return arr;
+  };
 
   function lineCoords(lines: number) {
     let i = 0;
@@ -40,11 +44,48 @@ function computeData(probability: number, obj: number, objLength: number, areaPe
       minY = 0,
       maxX = 1500,
       minX = 0;
+
     for (i = 0; i < lines; i++) {
-      x1Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
-      y1Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
-      x2Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
-      y2Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
+      let arr: number[] = [1, 2, 3, 4];
+      generateArray(arr);
+      console.log(arr);
+      // let side = +(Math.round(Math.random() * (4 - 1) + 1))
+      if (arr[0] === 1 && arr[1] === 2) {
+        x1Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
+        y1Arr.push(0);
+        x2Arr.push(1500);
+        y2Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
+      }
+      if (arr[0] === 1 && arr[1] === 3) {
+        x1Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
+        y1Arr.push(0);
+        x2Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
+        y2Arr.push(750);
+      }
+      if (arr[0] === 1 && arr[1] === 4) {
+        x1Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
+        y1Arr.push(0);
+        x2Arr.push(0);
+        y2Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
+      }
+      if (arr[0] === 2 && arr[1] === 3) {
+        x1Arr.push(1500);
+        y1Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
+        x2Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
+        y2Arr.push(750);
+      }
+      if (arr[0] === 2 && arr[1] === 4) {
+        x1Arr.push(1500);
+        y1Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
+        x2Arr.push(0);
+        y2Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
+      }
+      if (arr[0] === 3 && arr[1] === 4) {
+        x1Arr.push(+(Math.random() * (maxX - minX) + minX).toFixed(2));
+        y1Arr.push(750);
+        x2Arr.push(0);
+        y2Arr.push(+(Math.random() * (maxY - minY) + minY).toFixed(2));
+      }
     }
   }
 
@@ -131,6 +172,8 @@ function computeData(probability: number, obj: number, objLength: number, areaPe
   objCoords(Number(obj), Number(objLength));
   getIntersections(Number(lines));
 
+  let probabilityPract = intersections.length / objCount.length;
+
   return {
     x1Arr,
     y1Arr,
@@ -143,6 +186,8 @@ function computeData(probability: number, obj: number, objLength: number, areaPe
     intersections,
     linesCount,
     objCount,
+    probability,
+    probabilityPract,
   };
 }
 type Arrays = {
@@ -159,19 +204,19 @@ type Arrays = {
 
   linesCount: number[];
   objCount: number[];
+  probability: number;
+  probabilityPract: number;
 };
 
 export default function Lines() {
-  const [probability, setProbability] = useState('');
+  const [lines, setLines] = useState('');
   const [obj, setObjCount] = useState('');
   const [objLength, setObjLength] = useState('');
   const [areaPerim, setAreaPerim] = useState('');
   const [computeDatas, setComputedData] = useState<Arrays | undefined>();
 
-  const probabilityHandler: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    setProbability(event.target.value);
+  const linesHandler: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    setLines(event.target.value);
   };
 
   const objHandler: React.ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -189,8 +234,8 @@ export default function Lines() {
   ) => setAreaPerim(event.target.value);
 
   const setConsLog123: React.MouseEventHandler<HTMLButtonElement> = (event) => {
-    setComputedData(computeData(+probability, +obj, +objLength, +areaPerim));
-    console.log(computeDatas)
+    setComputedData(computeData(+lines, +obj, +objLength, +areaPerim));
+    console.log(computeDatas);
   };
 
   return (
@@ -208,23 +253,23 @@ export default function Lines() {
       })}
       {computeDatas?.objCount.map((el, i: number) => {
         return (
-          <Line
+          <Objs
             x1={computeDatas?.x1ObjArr[i]}
             y1={computeDatas?.y1ObjArr[i]}
             x2={computeDatas?.x2ObjArr[i]}
             y2={computeDatas?.y2ObjArr[i]}
-          ></Line>
+          ></Objs>
         );
       })}
       <div className="inputs">
         <form className="inputsForm">
           <span className="input-group-text" id="inputGroup-sizing-default">
-            Задайте необходимую вероятность обнаружения:
+            Задайте необходимое количество галсов:
           </span>
           <input
             type="text"
-            value={probability}
-            onChange={probabilityHandler}
+            value={lines}
+            onChange={linesHandler}
             name="inputProbability"
             className="form-control"
           />
@@ -258,10 +303,25 @@ export default function Lines() {
             name="inputAreaPerimeter"
             className="form-control"
           />
-          <button type="button" onClick={setConsLog123}>
+          <button
+            type="button"
+            id="btn"
+            className="btn btn-success"
+            onClick={setConsLog123}
+          >
             Отрисовать
           </button>
         </form>
+
+        <p>Количество пересечений: {computeDatas?.intersections.length}</p>
+        <p>
+          Теоретическая вероятность отыскания объекта:{' '}
+          {computeDatas?.probability}
+        </p>
+        <p>
+          Практическая вероятность отыскания объекта:{' '}
+          {computeDatas?.probabilityPract}
+        </p>
       </div>
     </div>
   );
